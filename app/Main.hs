@@ -266,10 +266,6 @@ appErrorString (PathNotFound e)     = "Path " <> show e <> " not found!\n"
 dbErrorString :: DbError -> String
 dbErrorString (DbErrorCode c) = "There was a problem with the command: " <> (handleDbError c)
 
---main :: IO ()
---main = do
-  --command <- execParser (info (helper <*> parseCommand) (fullDesc <> progDesc transportDesc <> header transportHeader))
-  --runCommand command
 main :: IO ()
 main = do
   c <- runScript $ initDb
