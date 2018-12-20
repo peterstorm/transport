@@ -37,7 +37,7 @@ data PathT f = Path
 
 makeLenses ''PathT
 
--- | Here we create some type synonyms so we can use User in our regular Haskell program.
+-- | Here we create some type synonyms so we can use 'Path' in our regular Haskell program.
 -- | We also create a 'PathId' we can use in our regular program as the primary key in the table.
 type Path = PathT Identity
 type PathId = PrimaryKey PathT Identity
