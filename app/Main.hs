@@ -23,9 +23,6 @@ import qualified Turtle as T
 
 import Util
 
-
-
-
 -- | Create datatype for the path we want to save in the database. When we save a path we give it a name, and a directory
 -- | Beam also uses this datatype to talk to the database. The naming convention is, as far as I can see that it converts
 -- | the camelCase to column names, by taking the capitalized parts and doing toLower and then adding an underscore.
@@ -91,31 +88,6 @@ instance AsDbError AppError where
   _DbError      = _AppDbError . _DbError
   _UnknownError = _AppDbError . _UnknownError
 
-appErrorString :: AppError -> String
-appErrorString (AppDbError db)      = dbErrorString db
-appErrorString (FilePathNotFound e) = "Filepath " <> show e <> " not found!\n" 
-appErrorString (PathNotFound e)     = "Path " <> show e <> " not found!\n"
-
-dbErrorString :: DbError -> String
-dbErrorString (DbErrorCode c) = "There was a problem with the command: " <> (handleDbError c)
-
-successString :: a -> String
-successString a = "success"
-
-initDb :: Script DbConfig
-initDb = do
-  path <- getDbPath
-  conn <- scriptIO $ open path
-  scriptIO $ execute_ (conn) "CREATE TABLE IF NOT EXISTS path_list (path_name VARCHAR NOT NULL, path_dir VARCHAR NOT NULL, PRIMARY KEY( path_name ))"
-  pure $ DbConfig conn path
-
-getDbPath :: Script FilePath
-getDbPath = do
-  home <- scriptIO $ getHomeDirectory
-  pure $ (home </> (".transport.db" :: FilePath))
-
-
-
 
 -- | PARSER STUFF
 
@@ -161,8 +133,17 @@ pathParser = argument str (metavar "PATH" <> help ("path you want to save. " <>
 
 -- | DATABASE STUFF
 
-_SQLiteResponse :: Prism' SomeException SQLiteResponse
-_SQLiteResponse = exception
+initDb :: Script DbConfig
+initDb = do
+  path <- getDbPath
+  conn <- scriptIO $ open path
+  scriptIO $ execute_ (conn) "CREATE TABLE IF NOT EXISTS path_list (path_name VARCHAR NOT NULL, path_dir VARCHAR NOT NULL, PRIMARY KEY( path_name ))"
+  pure $ DbConfig conn path
+
+getDbPath :: Script FilePath
+getDbPath = do
+  home <- scriptIO $ getHomeDirectory
+  pure $ (home </> (".transport.db" :: FilePath))
 
 withConnection :: (MonadError e m, MonadReader r m, MonadIO m, HasDbConfig r, AsDbError e) => (Connection -> IO (DatabaseResponse a)) -> m a
 withConnection f = do
@@ -276,6 +257,14 @@ runTP path = do
 
 runApp :: DbConfig -> ExceptT AppError (ReaderT DbConfig IO) a -> IO (Either AppError a)
 runApp config = flip runReaderT config . runExceptT
+
+appErrorString :: AppError -> String
+appErrorString (AppDbError db)      = dbErrorString db
+appErrorString (FilePathNotFound e) = "Filepath " <> show e <> " not found!\n" 
+appErrorString (PathNotFound e)     = "Path " <> show e <> " not found!\n"
+
+dbErrorString :: DbError -> String
+dbErrorString (DbErrorCode c) = "There was a problem with the command: " <> (handleDbError c)
 
 --main :: IO ()
 --main = do
