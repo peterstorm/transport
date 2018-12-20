@@ -65,3 +65,4 @@ packages:
 # compiler-check: newer-minor
 extra-deps:
 - beam-sqlite-0.3.2.3
+- hoist-error-0.2.1.0

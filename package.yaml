@@ -19,17 +19,39 @@ extra-source-files:
 # common to point users to the README.md file.
 description:         Please see the README on GitHub at <https://github.com/githubuser/transport#readme>
 
+default-extensions:
+- DeriveGeneric
+- GADTs
+- OverloadedStrings
+- FlexibleContexts
+- FlexibleInstances
+- TypeFamilies
+- TypeApplications
+- StandaloneDeriving
+- TypeSynonymInstances
+- MultiParamTypeClasses
+- TemplateHaskell
+- RecordWildCards
+
 dependencies:
 - base >= 4.7 && < 5
 - beam-core
 - beam-sqlite
 - beam-migrate
 - sqlite-simple
+- sqlite-simple-errors
 - lens
+- errors
+- either
+- exceptions
+- hoist-error
 - text
 - turtle
 - optparse-applicative
 - mtl
+- filepath
+- directory
+- pretty
 
 library:
   source-dirs: src
